@@ -9,8 +9,14 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { IProduct } from "../interfaces";
 
-const ProductCard = () => {
+interface Props {
+  product: IProduct;
+}
+
+const ProductCard = ({ product }: Props) => {
+  const { id, attributes } = product;
   const { colorMode } = useColorMode();
 
   return (
@@ -24,28 +30,27 @@ const ProductCard = () => {
     >
       <CardBody>
         <Image
-          src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
-          alt="Green double couch with wooden legs"
+          src={`http://localhost:1337${attributes?.thumbnail?.data.attributes.formats.thumbnail.url}`}
+          alt={attributes.title}
           rounded="lg"
           mx={"auto"}
           objectFit={"cover"}
+          height={60}
         />
         <Stack mt="6" spacing="3">
           <Heading size="md" textAlign={"center"} mb={2}>
-            Living room Sofa
+            {attributes.title}
           </Heading>
-          <Text fontSize={"sm"} textAlign={"center"}>
-            This sofa is perfect for modern tropical spaces, baroque inspired
-            spaces, earthy toned spaces and for people who love a chic design
-            with a sprinkle of vintage design.
+          <Text fontSize={"sm"} textAlign={"center"} minH={63}>
+            {attributes.description}
           </Text>
           <Text color="purple.600" fontSize="3xl" textAlign={"center"}>
-            $450
+            ${attributes.price}
           </Text>
         </Stack>
         <Button
           as={Link}
-          to={`/products/1`}
+          to={`/products/${id}`}
           size={"xl"}
           variant="outline"
           border={"none"}
