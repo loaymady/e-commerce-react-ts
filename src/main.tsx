@@ -3,7 +3,8 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import App from "./App.tsx";
 import "./index.css";
 import { Provider } from "react-redux";
-import store from "./app/store.ts";
+import store, { persister } from "./app/store.ts";
+import { PersistGate } from "redux-persist/integration/react";
 
 const theme = extendTheme({
   config: {
@@ -14,8 +15,10 @@ const theme = extendTheme({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
-    <ChakraProvider theme={theme}>
-      <App />
-    </ChakraProvider>
+    <PersistGate loading={null} persistor={persister}>
+      <ChakraProvider theme={theme}>
+        <App />
+      </ChakraProvider>
+    </PersistGate>
   </Provider>
 );

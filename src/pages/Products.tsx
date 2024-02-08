@@ -5,7 +5,8 @@ import ProductSkeleton from "../components/ProductCardSkeleton";
 import { IProduct } from "../interfaces";
 
 const ProductsPage = () => {
-  const { isLoading, data } = useGetProductListQuery({});
+  const { isLoading, data } = useGetProductListQuery(1);
+  console.log(data.data);
   if (isLoading)
     return (
       <Grid templateColumns={"repeat(auto-fill, minmax(300px, 1fr))"} gap={6}>

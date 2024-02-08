@@ -12,6 +12,10 @@ import ProductPage from "../pages/Product";
 import LoginPage from "../pages/Login";
 import CookieService from "../services/CookieService";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
+import DashboardLayout from "../pages/dashboard/DashboardLayout";
+import AdminDashboard from "../pages/dashboard/AdminDashboard";
+import DashboardProducts from "../pages/dashboard/DashboardProducts";
+
 const token = CookieService.get("jwt") ? true : false;
 
 const router = createBrowserRouter(
@@ -32,7 +36,11 @@ const router = createBrowserRouter(
           }
         />
       </Route>
-
+      <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path={"products"} element={<DashboardProducts />} />
+        <Route path={"categories"} element={<h1>Categories</h1>} />
+      </Route>
       {/* Page Not Found */}
       <Route path="*" element={<PageNotFound />} />
     </>

@@ -24,9 +24,9 @@ const ProductCard = ({ product }: Props) => {
       bg={"none"}
       rounded={"lg"}
       border={colorMode === "light" ? "1px solid #ddd" : "1px solid #2d3748"}
-      // boxShadow={"10px 10px 0px 0px rgba(245,245,245,1)"}
-      // transition={".3s ease-in-out"}
-      // _hover={{ transform: "translateY(-20px)" }}
+      boxShadow={"10px 10px 0px 0px rgba(245,245,245,1)"}
+      transition={".3s ease-in-out"}
+      _hover={{ transform: "translateY(-20px)" }}
     >
       <CardBody>
         <Image

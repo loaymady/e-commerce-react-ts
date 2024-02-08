@@ -22,7 +22,6 @@ import { BsArrowLeft } from "react-icons/bs";
 import { selectLogin, userLogin } from "../app/features/loginSlice";
 import { useAppDispatch } from "../app/store";
 import { useSelector } from "react-redux";
-// import { userLogin } from "../app/features/loginSlice";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();

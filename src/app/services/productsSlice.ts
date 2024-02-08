@@ -8,25 +8,18 @@ export const productsApiSlice = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:1337/api" }),
   endpoints: (builder) => ({
     //return hook for fetching data
+
+    //** GET Products
     getProductList: builder.query({
-      query: () => {
+      query: (arg) => {
         return {
           // => {baseURl}/products
-          url: "/products?populate=thumbnail,category",
+          url: `/products?populate=category,thumbnail&pagination[page]=${arg}`,
         };
       },
     }),
-  }),
-});
 
-export const productApiSlice = createApi({
-  //name of the slice = name in const cartSlice = createSlice({ name: "cart",
-  reducerPath: "productId",
-  //= queryKey in react-query, for caching
-  tagTypes: ["ProductId"],
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:1337/api" }),
-  endpoints: (builder) => ({
-    //return hook for fetching data
+    //** GET Product
     getProduct: builder.query({
       query: (arg) => {
         return {
@@ -39,6 +32,4 @@ export const productApiSlice = createApi({
 });
 
 //useGetProductListQuery is a hook that can be used to fetch products
-export const { useGetProductListQuery } = productsApiSlice;
-//useGetProductQuery is a hook that can be used to fetch product
-export const { useGetProductQuery } = productApiSlice;
+export const { useGetProductListQuery, useGetProductQuery } = productsApiSlice;

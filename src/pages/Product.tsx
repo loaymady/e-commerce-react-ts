@@ -17,6 +17,8 @@ import { BsArrowLeft } from "react-icons/bs";
 import { useGetProductQuery } from "../app/services/productsSlice";
 import ProductSkeleton from "../components/ProductCardSkeleton";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../app/features/cartSlice";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -24,6 +26,11 @@ const ProductPage = () => {
   const { colorMode } = useColorMode();
   const { isLoading, data } = useGetProductQuery({ id: id });
   const goBack = () => navigate(-1);
+
+  const dispatch = useDispatch();
+  const addItem = () => {
+    dispatch(addToCart(data.data));
+  };
 
   if (isLoading)
     return (
@@ -51,7 +58,7 @@ const ProductPage = () => {
         mx={"auto"}
         mb={20}
         border={colorMode === "light" ? "1px solid #ddd" : "1px solid #2d3748"}
-        // boxShadow={"10px 10px 0px 0px rgba(245,245,245,1)"}
+        boxShadow={"10px 10px 0px 0px rgba(245,245,245,1)"}
         bg={"none"}
       >
         <CardBody>
@@ -93,6 +100,7 @@ const ProductPage = () => {
             color={"white"}
             p={8}
             textTransform={"uppercase"}
+            onClick={addItem}
           >
             Add to cart
           </Button>

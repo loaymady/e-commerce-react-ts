@@ -66,6 +66,10 @@ const loginSlice = createSlice({
           path: "/",
           expires: date,
         });
+        CookieService.set("user", action.payload.user.username, {
+          path: "/",
+          expires: date,
+        });
         toast({
           title: "Logged in successfully",
           status: "success",

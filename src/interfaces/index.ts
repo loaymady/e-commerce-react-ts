@@ -1,5 +1,6 @@
 export interface IProduct {
   id: number;
+  quantity: number;
   attributes: {
     title: string;
     description: string;
@@ -16,6 +17,16 @@ export interface IProduct {
         };
       };
     };
+    category: {
+      data: ICategory[];
+    };
+  };
+}
+
+interface ICategory {
+  id: number;
+  attributes: {
+    title: string;
   };
 }
 

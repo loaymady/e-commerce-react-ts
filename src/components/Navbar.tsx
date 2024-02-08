@@ -19,6 +19,10 @@ import {
 } from "@chakra-ui/react";
 import { BsMoon, BsSun } from "react-icons/bs";
 import { Link as RouterLink } from "react-router-dom";
+import CookieService from "../services/CookieService";
+import { onOpenCartDrawerAction } from "../app/features/globalSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCart } from "../app/features/cartSlice";
 
 interface Props {
   children: React.ReactNode;
@@ -44,7 +48,16 @@ const NavLink = ({ children, fontWeight, fontSize }: Props) => (
 
 export default function Navbar() {
   const { colorMode, toggleColorMode } = useColorMode();
-  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const jwt = CookieService.get("jwt");
+  const logout = () => {
+    CookieService.remove("jwt");
+    window.location.reload();
+  };
+  const username = CookieService.get("user");
+  const dispatch = useDispatch();
+  const onOpen = () => dispatch(onOpenCartDrawerAction());
+  const { cartProducts } = useSelector(selectCart);
+
   return (
     <>
       <Box
@@ -74,48 +87,53 @@ export default function Navbar() {
                 <Button onClick={toggleColorMode}>
                   {colorMode === "light" ? <BsMoon /> : <BsSun />}
                 </Button>
-                <Button>Cart</Button>
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    rounded={"full"}
-                    variant={"link"}
-                    cursor={"pointer"}
-                    minW={0}
-                  >
-                    <Avatar
-                      size={"sm"}
-                      src={"https://avatars.dicebear.com/api/male/username.svg"}
-                    />
-                  </MenuButton>
-                  <MenuList alignItems={"center"}>
-                    <br />
-                    <Center>
+                <Button onClick={onOpen}>Cart ({cartProducts.length})</Button>
+                {jwt ? (
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      rounded={"full"}
+                      variant={"link"}
+                      cursor={"pointer"}
+                      minW={0}
+                    >
                       <Avatar
-                        size={"2xl"}
+                        size={"sm"}
                         src={
                           "https://avatars.dicebear.com/api/male/username.svg"
                         }
                       />
-                    </Center>
-                    <br />
-                    <Center>
-                      <p>Username</p>
-                    </Center>
-                    <br />
-                    <MenuDivider />
-                    <MenuItem>Your Servers</MenuItem>
-                    <MenuItem>Account Settings</MenuItem>
-                    <MenuItem>Logout</MenuItem>
-                  </MenuList>
-                </Menu>
-                <HStack
-                  as={"nav"}
-                  spacing={4}
-                  display={{ base: "none", md: "flex" }}
-                >
-                  <NavLink>Login</NavLink>
-                </HStack>
+                    </MenuButton>
+                    <MenuList alignItems={"center"}>
+                      <br />
+                      <Center>
+                        <Avatar
+                          size={"2xl"}
+                          src={
+                            "https://avatars.dicebear.com/api/male/username.svg"
+                          }
+                        />
+                      </Center>
+                      <br />
+                      <Center>
+                        <p>{username}</p>
+                      </Center>
+                      <br />
+                      <MenuDivider />
+                      <MenuItem>Your Servers</MenuItem>
+                      <MenuItem>Account Settings</MenuItem>
+                      <MenuItem onClick={logout}>Logout</MenuItem>
+                    </MenuList>
+                  </Menu>
+                ) : (
+                  <HStack
+                    as={"nav"}
+                    spacing={4}
+                    display={{ base: "none", md: "flex" }}
+                  >
+                    <NavLink>Login</NavLink>
+                  </HStack>
+                )}
               </Stack>
             </Flex>
           </Flex>
