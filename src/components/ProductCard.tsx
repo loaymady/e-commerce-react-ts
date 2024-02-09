@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { IProduct } from "../interfaces";
+import imgFalBack from "../assets/img-placeholder.png";
 
 interface Props {
   product: IProduct;
@@ -30,7 +31,11 @@ const ProductCard = ({ product }: Props) => {
     >
       <CardBody>
         <Image
-          src={`http://localhost:1337${attributes?.thumbnail?.data.attributes.formats.thumbnail.url}`}
+          src={
+            attributes?.thumbnail?.data?.attributes?.formats?.thumbnail?.url
+              ? `http://localhost:1337${attributes.thumbnail.data.attributes.formats.thumbnail.url}`
+              : imgFalBack
+          }
           alt={attributes.title}
           rounded="lg"
           mx={"auto"}

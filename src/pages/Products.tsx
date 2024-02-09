@@ -6,7 +6,6 @@ import { IProduct } from "../interfaces";
 
 const ProductsPage = () => {
   const { isLoading, data } = useGetProductListQuery(1);
-  console.log(data.data);
   if (isLoading)
     return (
       <Grid templateColumns={"repeat(auto-fill, minmax(300px, 1fr))"} gap={6}>
@@ -15,6 +14,7 @@ const ProductsPage = () => {
         ))}
       </Grid>
     );
+
   return (
     <Grid templateColumns={"repeat(auto-fill, minmax(300px, 1fr))"} gap={6}>
       {data.data.map((product: IProduct) => (

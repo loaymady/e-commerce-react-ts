@@ -77,7 +77,7 @@ const ProductPage = () => {
             <Text textAlign={"center"}>
               {data?.data?.attributes?.description}
             </Text>
-            <Text color="blue.100" fontSize="2xl" textAlign={"center"}>
+            <Text color="purple.600" fontSize="2xl" textAlign={"center"}>
               {data?.data?.attributes?.category?.data[0]?.attributes?.title}
             </Text>
             <Text color="blue.300" fontSize="2xl" textAlign={"center"}>

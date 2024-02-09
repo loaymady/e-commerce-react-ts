@@ -3,6 +3,7 @@ import { BsTrash } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { removeFromCart } from "../app/features/cartSlice";
 import { IProduct } from "../interfaces";
+import imgFalBack from "../assets/img-placeholder.png";
 
 interface IProps {
   product: IProduct;
@@ -16,7 +17,11 @@ const CartDrawerItem = ({ product }: IProps) => {
     <>
       <Flex alignItems={"center"} mb={3} py={2}>
         <Image
-          src={`http://localhost:1337${thumbnail.data.attributes.formats.thumbnail.url}`}
+          src={
+            thumbnail?.data?.attributes?.formats?.thumbnail?.url
+              ? `http://localhost:1337${thumbnail?.data.attributes.formats.thumbnail.url}`
+              : imgFalBack
+          }
           alt={title}
           w={"80px"}
           h={"80px"}
