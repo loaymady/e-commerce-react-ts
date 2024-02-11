@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   Button,
   Modal,
@@ -8,6 +9,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
+import { memo } from "react";
 
 interface IProps {
   isOpen: boolean;
@@ -15,7 +17,7 @@ interface IProps {
   onOkClick: () => void;
   title: string;
   okTxt: string;
-  cancelTxt: string;
+  cancelTxt?: string;
   isLoading: boolean;
   children: React.ReactNode;
 }
@@ -25,7 +27,7 @@ const CustomModal = ({
   onClose,
   title,
   cancelTxt = "Cancel",
-  okTxt = "Done",
+  okTxt,
   children,
   isLoading,
   onOkClick,
@@ -49,7 +51,12 @@ const CustomModal = ({
           <Button mr={3} onClick={onClose}>
             {cancelTxt}
           </Button>
-          <Button colorScheme="blue" onClick={onOkClick} isLoading={isLoading}>
+          <Button
+            // colorScheme="blue"
+            onClick={onOkClick}
+            colorScheme={okTxt === "Create" ? "green" : "blue"}
+            isLoading={isLoading}
+          >
             {okTxt}
           </Button>
         </ModalFooter>
@@ -58,4 +65,4 @@ const CustomModal = ({
   );
 };
 
-export default CustomModal;
+export default memo(CustomModal);

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   AlertDialog,
   AlertDialogBody,
@@ -8,7 +9,7 @@ import {
   AlertDialogOverlay,
   Button,
 } from "@chakra-ui/react";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 
 interface IProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface IProps {
   onOkHandler: () => void;
 }
 
-export default function CustomAlertDialog({
+const CustomAlertDialog = ({
   isOpen,
   onClose,
   title,
@@ -28,9 +29,8 @@ export default function CustomAlertDialog({
   okTxt,
   isLoading,
   onOkHandler,
-}: IProps) {
+}: IProps) => {
   const cancelRef = useRef<HTMLButtonElement>(null);
-
   return (
     <>
       <AlertDialog
@@ -65,4 +65,6 @@ export default function CustomAlertDialog({
       </AlertDialog>
     </>
   );
-}
+};
+
+export default memo(CustomAlertDialog);

@@ -21,10 +21,11 @@ import {
   NumberDecrementStepper,
   Textarea,
   Flex,
-  createStandaloneToast,
+  useToast,
 } from "@chakra-ui/react";
 import { AiOutlineEye, AiOutlinePlus } from "react-icons/ai";
 import {
+  useCreateDashboardProductsMutation,
   useDeleteDashboardProductsMutation,
   useGetProductListQuery,
   useUpdateDashboardProductsMutation,
@@ -35,31 +36,38 @@ import { BsTrash } from "react-icons/bs";
 import { FiEdit2 } from "react-icons/fi";
 import { IProduct } from "../interfaces";
 import CustomAlertDialog from "../shared/AlertDialog";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CustomModal from "../shared/Modal";
 import { IntitalProduct } from "../data";
 
-const { toast } = createStandaloneToast();
+const DashboardProductsTable = () => {
+  const toast = useToast();
 
-const DashboardProductsTable: React.FC = () => {
   const { isLoading, data } = useGetProductListQuery(1);
   //for CustomAlertDialog
   const { isOpen, onOpen, onClose } = useDisclosure();
-  //for CustomModal
+  //for open edit CustomModal
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
-  const [destroyProduct, { isLoading: isDestroying, isSuccess }] =
-    useDeleteDashboardProductsMutation();
-  const [
-    updateProduct,
-    { isLoading: isUpdating, isSuccess: isUpdatingSuccess },
-  ] = useUpdateDashboardProductsMutation();
+  const {
+    isOpen: isCreateModalOpen,
+    onOpen: onCreateModalOpen,
+    onClose: onCreateModalClose,
+  } = useDisclosure();
   const [clickedProductId, setClickedProductId] = useState(0);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [productToEdit, setProductToEdit] = useState<IProduct>(IntitalProduct);
+  const [productToCreate, setProductToCreate] =
+    useState<IProduct>(IntitalProduct);
+  const [destroyProduct, { isLoading: isDestroying }] =
+    useDeleteDashboardProductsMutation();
+  const [updateProduct, { isLoading: isUpdating }] =
+    useUpdateDashboardProductsMutation();
+  const [createProduct, { isLoading: isCreating }] =
+    useCreateDashboardProductsMutation();
 
   /** --------- EDITING --------- */
   const onChangeHandler = (
@@ -101,7 +109,7 @@ const DashboardProductsTable: React.FC = () => {
     }
   };
 
-  const onSubmitHandler = () => {
+  const onSubmitHandler = async () => {
     const formData = new FormData();
     formData.append(
       "data",
@@ -115,21 +123,18 @@ const DashboardProductsTable: React.FC = () => {
     if (thumbnail) {
       formData.append("files.thumbnail", thumbnail);
     }
-    updateProduct({ id: clickedProductId, body: formData });
-  };
-
-  useEffect(() => {
-    if (isSuccess) {
-      setClickedProductId(0);
-      onClose();
+    const result = await updateProduct({
+      id: clickedProductId,
+      body: formData,
+    });
+    if ("error" in result) {
       toast({
-        title: `Product Deleted Successfully!`,
+        title: "Uh oh something bad happened!",
         status: "error",
         isClosable: true,
         duration: 2000,
       });
-    }
-    if (isUpdatingSuccess) {
+    } else {
       setClickedProductId(0);
       setProductToEdit(IntitalProduct);
       onModalClose();
@@ -140,7 +145,76 @@ const DashboardProductsTable: React.FC = () => {
         duration: 2000,
       });
     }
-  }, [isSuccess, isUpdatingSuccess]);
+  };
+
+  /** --------- CREATING --------- */
+  const onChangeCreateHandler = (
+    e:
+      | React.ChangeEvent<HTMLTextAreaElement>
+      | React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setProductToCreate({
+      ...productToCreate,
+      attributes: {
+        ...productToCreate.attributes,
+        [name]: value,
+      },
+    });
+  };
+
+  const onChangePriceCreateHandler = (value: string | number) =>
+    setProductToCreate({
+      ...productToCreate,
+      attributes: {
+        ...productToCreate.attributes,
+        price: +value,
+      },
+    });
+
+  const onChangeStockCreateHandler = (value: string | number) =>
+    setProductToCreate({
+      ...productToCreate,
+      attributes: {
+        ...productToCreate.attributes,
+        stock: +value,
+      },
+    });
+
+  const onSubmitCreateHandler = async () => {
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        title: productToCreate.attributes.title,
+        description: productToCreate.attributes.description,
+        price: productToCreate.attributes.price,
+        stock: productToCreate.attributes.stock,
+      })
+    );
+    if (thumbnail) {
+      formData.append("files.thumbnail", thumbnail);
+    }
+    const result = await createProduct(formData);
+    if ("error" in result) {
+      toast({
+        title: "Uh oh something bad happened!",
+        status: "error",
+        isClosable: true,
+        duration: 2000,
+      });
+    } else {
+      setProductToCreate(IntitalProduct);
+      onCreateModalClose();
+      toast({
+        title: `Product Created Successfully!`,
+        status: "success",
+        isClosable: true,
+        duration: 2000,
+      });
+    }
+  };
 
   if (isLoading) return <TableSkeleton />;
 
@@ -150,7 +224,7 @@ const DashboardProductsTable: React.FC = () => {
         <Button
           rightIcon={<AiOutlinePlus />}
           colorScheme="green"
-          onClick={() => {}}
+          onClick={onCreateModalOpen}
           ml={"auto"}
           w={"fit-content"}
         >
@@ -248,7 +322,26 @@ const DashboardProductsTable: React.FC = () => {
         }
         okTxt="Destroy"
         isLoading={isDestroying}
-        onOkHandler={() => destroyProduct(clickedProductId)}
+        onOkHandler={async () => {
+          const result = await destroyProduct(clickedProductId);
+          if ("error" in result) {
+            toast({
+              title: "Uh oh something bad happened!",
+              status: "error",
+              isClosable: true,
+              duration: 2000,
+            });
+          } else {
+            setClickedProductId(0);
+            onClose();
+            toast({
+              title: `Product Deleted Successfully!`,
+              status: "error",
+              isClosable: true,
+              duration: 2000,
+            });
+          }
+        }}
       />
 
       <CustomModal
@@ -304,6 +397,76 @@ const DashboardProductsTable: React.FC = () => {
             name="stock"
             defaultValue={productToEdit?.attributes?.stock}
             onChange={onChangeStockHandler}
+          >
+            <NumberInputField />
+          </NumberInput>
+        </FormControl>
+
+        <FormControl>
+          <FormLabel htmlFor="thumbnail">Thumbnail</FormLabel>
+          <Input
+            id="thumbnail"
+            type="file"
+            h={"full"}
+            p={2}
+            accept="image/png, image/gif, image/jpeg"
+            onChange={onChangeThumbnailHandler}
+          />
+        </FormControl>
+      </CustomModal>
+
+      <CustomModal
+        isOpen={isCreateModalOpen}
+        onClose={onCreateModalClose}
+        title={"Create Product"}
+        okTxt="Create"
+        onOkClick={onSubmitCreateHandler}
+        isLoading={isCreating}
+      >
+        <FormControl>
+          <FormLabel>Title</FormLabel>
+          <Input
+            my={3}
+            placeholder="Product Title"
+            name="title"
+            value={productToCreate?.attributes?.title}
+            onChange={onChangeCreateHandler}
+          />
+        </FormControl>
+
+        <FormControl mb={3}>
+          <FormLabel>Description</FormLabel>
+          <Textarea
+            placeholder="Product Description"
+            name="description"
+            value={productToCreate?.attributes?.description}
+            onChange={onChangeCreateHandler}
+          />
+        </FormControl>
+
+        <FormControl mb={3}>
+          <FormLabel>Price</FormLabel>
+          <NumberInput
+            name="price"
+            defaultValue={productToCreate?.attributes?.price}
+            onChange={onChangePriceCreateHandler}
+            precision={2}
+            step={0.2}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+
+        <FormControl my={3}>
+          <FormLabel>Count in Stock</FormLabel>
+          <NumberInput
+            name="stock"
+            defaultValue={productToCreate?.attributes?.stock}
+            onChange={onChangeStockCreateHandler}
           >
             <NumberInputField />
           </NumberInput>
