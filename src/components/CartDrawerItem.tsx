@@ -19,7 +19,7 @@ const CartDrawerItem = ({ product }: IProps) => {
         <Image
           src={
             thumbnail?.data?.attributes?.formats?.thumbnail?.url
-              ? `http://localhost:1337${thumbnail?.data.attributes.formats.thumbnail.url}`
+              ? thumbnail?.data.attributes.formats.thumbnail.url
               : imgFalBack
           }
           alt={title}

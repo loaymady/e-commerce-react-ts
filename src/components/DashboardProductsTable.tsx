@@ -39,10 +39,12 @@ import CustomAlertDialog from "../shared/AlertDialog";
 import { useState } from "react";
 import CustomModal from "../shared/Modal";
 import { IntitalProduct } from "../data";
+import { useSelector } from "react-redux";
+import { selectNetwork } from "../app/features/networkSlice";
 
 const DashboardProductsTable = () => {
   const toast = useToast();
-
+  const { isOnline } = useSelector(selectNetwork);
   const { isLoading, data } = useGetProductListQuery(1);
   //for CustomAlertDialog
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -216,7 +218,7 @@ const DashboardProductsTable = () => {
     }
   };
 
-  if (isLoading) return <TableSkeleton />;
+  if (isLoading || !isOnline) return <TableSkeleton />;
 
   return (
     <>
@@ -266,7 +268,10 @@ const DashboardProductsTable = () => {
                       borderRadius="full"
                       objectFit={"cover"}
                       boxSize="40px"
-                      src={`http://localhost:1337${product?.attributes?.thumbnail?.data?.attributes?.formats?.thumbnail?.url}`}
+                      src={
+                        product?.attributes?.thumbnail?.data?.attributes
+                          ?.formats?.thumbnail?.url
+                      }
                       alt={product?.attributes?.title}
                     />
                   </Td>

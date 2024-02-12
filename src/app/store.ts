@@ -6,6 +6,7 @@ import { productsApiSlice } from "./services/productsSlice";
 import loginSlice from "./features/loginSlice";
 import cartSlice from "./features/cartSlice";
 import globalSlice from "./features/globalSlice";
+import networkSlice from "./features/networkSlice";
 
 const persistCartConfig = {
   key: "cart",
@@ -20,6 +21,7 @@ const store = configureStore({
     cart: persistedCart,
     global: globalSlice,
     login: loginSlice,
+    network: networkSlice,
     //to make dynamic api calls, reducerPath=> name of the slice,
     [productsApiSlice.reducerPath]: productsApiSlice.reducer,
   },

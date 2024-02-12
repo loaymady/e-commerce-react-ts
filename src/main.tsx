@@ -5,6 +5,7 @@ import "./index.css";
 import { Provider } from "react-redux";
 import store, { persister } from "./app/store.ts";
 import { PersistGate } from "redux-persist/integration/react";
+import InternetConnectionProvider from "./components/providers/InternetConnectionProvider.tsx";
 
 const theme = extendTheme({
   config: {
@@ -15,10 +16,12 @@ const theme = extendTheme({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persister}>
-      <ChakraProvider theme={theme}>
-        <App />
-      </ChakraProvider>
-    </PersistGate>
+    <InternetConnectionProvider>
+      <PersistGate loading={null} persistor={persister}>
+        <ChakraProvider theme={theme}>
+          <App />
+        </ChakraProvider>
+      </PersistGate>
+    </InternetConnectionProvider>
   </Provider>
 );

@@ -33,7 +33,7 @@ const ProductCard = ({ product }: Props) => {
         <Image
           src={
             attributes?.thumbnail?.data?.attributes?.formats?.thumbnail?.url
-              ? `http://localhost:1337${attributes.thumbnail.data.attributes.formats.thumbnail.url}`
+              ? attributes.thumbnail.data.attributes.formats.thumbnail.url
               : imgFalBack
           }
           alt={attributes.title}

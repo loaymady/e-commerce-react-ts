@@ -63,12 +63,14 @@ const ProductPage = () => {
       >
         <CardBody>
           <Image
-            src={`http://localhost:1337${data.data.attributes.thumbnail.data.attributes.url}`}
+            src={
+              data.data.attributes.thumbnail?.data?.attributes?.formats
+                ?.thumbnail?.url
+            }
             alt={data?.data?.attributes?.title}
             borderRadius="lg"
             h={"200px"}
             w={"full"}
-            // fallbackSrc={imgFalBack}
           />
           <Stack mt="6" spacing="3">
             <Heading size="md" textAlign={"center"}>
