@@ -5,9 +5,7 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Checkbox,
   Stack,
-  Link,
   Button,
   Heading,
   InputRightElement,
@@ -15,27 +13,31 @@ import {
   FormHelperText,
   useColorMode,
   Text,
+  RadioGroup,
+  Radio,
 } from "@chakra-ui/react";
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { BsArrowLeft } from "react-icons/bs";
-import { selectLogin, userLogin } from "../app/features/loginSlice";
 import { useAppDispatch } from "../app/store";
 import { useSelector } from "react-redux";
-import { Link as RouterLink } from "react-router-dom";
+import { selectRegister, userRegister } from "../app/features/registerSlice";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
-  const { loading } = useSelector(selectLogin);
+  const { loading } = useSelector(selectRegister);
 
   const [user, setUser] = useState({
-    identifier: "",
+    email: "",
+    username: "",
     password: "",
+    admin: false,
   });
 
   const [isEmail, setIsEmail] = useState(false);
+  const [isUsername, setIsUsername] = useState(false);
   const [isPassword, setIsPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -43,19 +45,27 @@ export default function LoginPage() {
     const { name, value } = e.target;
     setUser({ ...user, [name]: value });
   };
+  const handleAdminChange = (value: string) => {
+    setUser({ ...user, admin: value === "yes" });
+  };
 
   const goBack = () => navigate(-1);
 
   const submitHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
-    if (!user.identifier && !user.password) {
+    if (!user.email && !user.password && !user.username) {
       setIsEmail(true);
+      setIsUsername(true);
       setIsPassword(true);
       return;
     }
-    if (!user.identifier) {
+    if (!user.email) {
       setIsEmail(true);
+      return;
+    }
+    if (!user.username) {
+      setIsUsername(true);
       return;
     }
     if (!user.password) {
@@ -65,7 +75,8 @@ export default function LoginPage() {
 
     setIsEmail(false);
     setIsPassword(false);
-    dispatch(userLogin(user));
+    setIsUsername(false);
+    dispatch(userRegister(user));
   };
 
   return (
@@ -85,8 +96,8 @@ export default function LoginPage() {
         </Flex>
 
         <Stack align={"center"}>
-          <Heading fontSize={{ base: "3xl", md: "4xl" }} mb={3}>
-            Sign in to your account
+          <Heading fontSize={"4xl"} mb={3}>
+            Create An Account
           </Heading>
         </Stack>
 
@@ -108,14 +119,32 @@ export default function LoginPage() {
                 type="email"
                 isInvalid={isEmail}
                 errorBorderColor="crimson"
-                name={"identifier"}
-                value={user.identifier}
+                name={"email"}
+                value={user.email}
                 onChange={onChangeHandler}
                 autoComplete="email"
               />
               {isEmail ? (
                 <FormHelperText color="red.500">
                   Email is required
+                </FormHelperText>
+              ) : null}
+            </FormControl>
+
+            <FormControl id="username">
+              <FormLabel>Username</FormLabel>
+              <Input
+                type="text"
+                isInvalid={isUsername}
+                errorBorderColor="crimson"
+                name={"username"}
+                value={user.username}
+                onChange={onChangeHandler}
+                autoComplete="username"
+              />
+              {isUsername ? (
+                <FormHelperText color="red.500">
+                  Username is required
                 </FormHelperText>
               ) : null}
             </FormControl>
@@ -154,15 +183,20 @@ export default function LoginPage() {
                 </FormHelperText>
               ) : null}
             </FormControl>
-            <Stack spacing={5}>
-              <Stack
-                direction={{ base: "column", sm: "row" }}
-                align={"start"}
-                justify={"space-between"}
+            <FormControl as="fieldset" id="admin">
+              <FormLabel as="legend">Are you an admin?</FormLabel>
+              <RadioGroup
+                defaultValue="no" // Set a default value based on your requirements
+                name="admin"
+                onChange={handleAdminChange}
               >
-                <Checkbox id="remember">Remember me</Checkbox>
-                <Link color={"#7f42f8"}>Forgot password?</Link>
-              </Stack>
+                <Stack direction="row">
+                  <Radio value="yes">Yes</Radio>
+                  <Radio value="no">No</Radio>
+                </Stack>
+              </RadioGroup>
+            </FormControl>
+            <Stack spacing={5} mt={2}>
               <Button
                 color={"#e6f3fd"}
                 bg={isEmail || isPassword ? "red.500" : "#6b28ef"}
@@ -174,16 +208,10 @@ export default function LoginPage() {
                 h={16}
                 isLoading={loading}
               >
-                Sign in
+                Register
               </Button>
             </Stack>
           </Stack>
-          <Text textAlign="center" mt="5">
-            Don’t have an account?
-            <Link ml="1" color="purple.500" as={RouterLink} to="/register">
-              Sign Up
-            </Link>
-          </Text>
         </Box>
       </Stack>
     </Flex>

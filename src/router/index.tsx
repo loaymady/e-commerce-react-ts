@@ -15,8 +15,10 @@ import ProtectedRoute from "../components/auth/ProtectedRoute";
 import DashboardLayout from "../pages/dashboard/DashboardLayout";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
 import DashboardProducts from "../pages/dashboard/DashboardProducts";
+import RegisterPage from "../pages/Register";
 
 const token = CookieService.get("jwt") ? true : false;
+const isAdmin = CookieService.get("isAdmin");
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,8 +27,20 @@ const router = createBrowserRouter(
       <Route path="/" element={<RootLayout />} errorElement={<ErrorHandler />}>
         <Route index element={<HomePage />} />
         <Route path="home" element={<HomePage />} />
-        <Route path="products" element={<ProductsPage />} />
-        <Route path="products/:id" element={<ProductPage />} />
+        <Route
+          path="products"
+          element={
+            <ProtectedRoute isAllowed={token} redirectPath="/login">
+              <ProductsPage />
+            </ProtectedRoute>
+          }
+          errorElement={<ErrorHandler />}
+        />
+        <Route
+          path="products/:id"
+          element={<ProductPage />}
+          errorElement={<ErrorHandler />}
+        />
         <Route
           path="login"
           element={
@@ -35,11 +49,29 @@ const router = createBrowserRouter(
             </ProtectedRoute>
           }
         />
+        <Route
+          path="register"
+          element={
+            <ProtectedRoute isAllowed={!token} redirectPath="/">
+              <RegisterPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
-      <Route path="/dashboard" element={<DashboardLayout />}>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<AdminDashboard />} />
-        <Route path={"products"} element={<DashboardProducts />} />
-        <Route path={"categories"} element={<h1>Categories</h1>} />
+        <Route
+          path={"products"}
+          element={<DashboardProducts />}
+          errorElement={<ErrorHandler />}
+        />
       </Route>
       {/* Page Not Found */}
       <Route path="*" element={<PageNotFound />} />

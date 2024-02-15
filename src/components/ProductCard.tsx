@@ -1,12 +1,12 @@
 import {
+  AspectRatio,
+  Box,
   Button,
-  Card,
-  CardBody,
-  Heading,
   Image,
+  Skeleton,
   Stack,
   Text,
-  useColorMode,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { IProduct } from "../interfaces";
@@ -18,62 +18,48 @@ interface Props {
 
 const ProductCard = ({ product }: Props) => {
   const { id, attributes } = product;
-  const { colorMode } = useColorMode();
-
   return (
-    <Card
+    <Stack
       bg={"none"}
       rounded={"lg"}
-      border={colorMode === "light" ? "1px solid #ddd" : "1px solid #2d3748"}
       boxShadow={"10px 10px 0px 0px rgba(245,245,245,1)"}
       transition={".3s ease-in-out"}
-      _hover={{ transform: "translateY(-20px)" }}
+      _hover={{ transform: "translateY(-10px)" }}
+      spacing={{ base: "4", md: "5" }}
+      p={{ base: "4", md: "4" }}
     >
-      <CardBody>
-        <Image
-          src={
-            attributes?.thumbnail?.data?.attributes?.formats?.thumbnail?.url
-              ? attributes.thumbnail.data.attributes.formats.thumbnail.url
-              : imgFalBack
-          }
-          alt={attributes.title}
-          rounded="lg"
-          mx={"auto"}
-          objectFit={"cover"}
-          height={60}
-        />
-        <Stack mt="6" spacing="3">
-          <Heading size="md" textAlign={"center"} mb={2}>
+      <Box position="relative">
+        <AspectRatio ratio={4 / 3}>
+          <Image
+            src={
+              attributes?.thumbnail?.data?.attributes?.formats?.thumbnail?.url
+                ? attributes.thumbnail.data.attributes.formats.thumbnail.url
+                : imgFalBack
+            }
+            alt={attributes.title}
+            draggable="false"
+            fallback={<Skeleton />}
+            borderRadius={{ base: "md", md: "xl" }}
+          />
+        </AspectRatio>
+      </Box>
+      <Stack>
+        <Stack spacing="1">
+          <Text
+            fontWeight="medium"
+            color={useColorModeValue("gray.700", "gray.400")}
+          >
             {attributes.title}
-          </Heading>
-          <Text fontSize={"sm"} textAlign={"center"} minH={63}>
-            {attributes.description}
           </Text>
-          <Text color="purple.600" fontSize="3xl" textAlign={"center"}>
-            ${attributes.price}
-          </Text>
+          <Text color="purple.500">${attributes.price}</Text>
         </Stack>
-        <Button
-          as={Link}
-          to={`/products/${id}`}
-          size={"xl"}
-          variant="outline"
-          border={"none"}
-          py={5}
-          overflow={"hidden"}
-          w={"full"}
-          color={"#e6f3fd"}
-          bg={"#6b28ef"}
-          _hover={{
-            bg: "#570af2",
-            border: "transparent",
-          }}
-          mt={6}
-        >
+      </Stack>
+      <Stack align="center">
+        <Button as={Link} to={`/products/${id}`} colorScheme="blue" w="full">
           View Details
         </Button>
-      </CardBody>
-    </Card>
+      </Stack>
+    </Stack>
   );
 };
 

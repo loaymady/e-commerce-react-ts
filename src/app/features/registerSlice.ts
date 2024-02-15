@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createStandaloneToast } from "@chakra-ui/react";
 import { RootState } from "../store";
-import { IUser } from "../../interfaces";
+import { IRegister } from "../../interfaces";
 import CookieService from "../../services/CookieService";
 
 const { toast } = createStandaloneToast();
@@ -18,15 +18,15 @@ const initialState: LoginState = {
   error: null,
 };
 
-export const userLogin = createAsyncThunk(
-  "login/userLogin",
-  async (user: IUser, thunkAPI) => {
+export const userRegister = createAsyncThunk(
+  "login/userRegister",
+  async (user: IRegister, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
 
     try {
       const response = await fetch(
-        `https://strapi-e-commerce-6029.onrender.com/api/auth/local`,
-        // `http://localhost:1337/api/auth/local`,
+        `https://strapi-e-commerce-6029.onrender.com/api/auth/local/register`,
+        // `http://localhost:1337/api/auth/local/register`,
         {
           method: "POST",
           headers: {
@@ -49,16 +49,16 @@ export const userLogin = createAsyncThunk(
   }
 );
 
-const loginSlice = createSlice({
+const registerSlice = createSlice({
   initialState,
-  name: "login",
+  name: "register",
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(userLogin.pending, (state) => {
+      .addCase(userRegister.pending, (state) => {
         state.loading = true;
       })
-      .addCase(userLogin.fulfilled, (state, action) => {
+      .addCase(userRegister.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload;
         state.error = null;
@@ -79,7 +79,7 @@ const loginSlice = createSlice({
           expires: date,
         });
         toast({
-          title: "Logged in successfully",
+          title: "Register Success",
           status: "success",
           isClosable: true,
         });
@@ -87,7 +87,7 @@ const loginSlice = createSlice({
           location.replace("/");
         }, 2000);
       })
-      .addCase(userLogin.rejected, (state, action) => {
+      .addCase(userRegister.rejected, (state, action) => {
         state.loading = false;
         state.data = null;
         state.error = action.payload;
@@ -101,6 +101,6 @@ const loginSlice = createSlice({
   },
 });
 
-export const selectLogin = (state: RootState) => state.login;
+export const selectRegister = (state: RootState) => state.register;
 
-export default loginSlice.reducer;
+export default registerSlice.reducer;

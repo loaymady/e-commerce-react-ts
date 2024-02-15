@@ -12,7 +12,6 @@ import {
   Text,
   useColorMode,
 } from "@chakra-ui/react";
-// import imgFalBack from "../assets/img-placeholder.png";
 import { BsArrowLeft } from "react-icons/bs";
 import { useGetProductQuery } from "../app/services/productsSlice";
 import ProductSkeleton from "../components/ProductCardSkeleton";
@@ -79,10 +78,8 @@ const ProductPage = () => {
             <Text textAlign={"center"}>
               {data?.data?.attributes?.description}
             </Text>
-            <Text color="purple.600" fontSize="2xl" textAlign={"center"}>
-              {data?.data?.attributes?.category?.data[0]?.attributes?.title}
-            </Text>
-            <Text color="blue.300" fontSize="2xl" textAlign={"center"}>
+
+            <Text color="purple.500" fontSize="2xl" textAlign={"center"}>
               ${data?.data?.attributes?.price}
             </Text>
           </Stack>

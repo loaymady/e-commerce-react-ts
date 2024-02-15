@@ -8,7 +8,10 @@ export const productsApiSlice = createApi({
   tagTypes: ["Products"],
   refetchOnReconnect: true,
   refetchOnMountOrArgChange: true,
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:1337/api" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://strapi-e-commerce-6029.onrender.com/api",
+    // baseUrl: "http://localhost:1337/api",
+  }),
   endpoints: (builder) => ({
     //return hook for fetching data
 

@@ -1,4 +1,3 @@
-// import { useRef } from "react";
 import {
   Button,
   Drawer,
@@ -11,7 +10,6 @@ import {
   Text,
   useColorMode,
 } from "@chakra-ui/react";
-// import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   onCloseCartDrawerAction,
@@ -43,11 +41,22 @@ const CartDrawer = () => {
 
         <DrawerBody>
           {cartProducts.length ? (
-            cartProducts.map((item: IProduct) => (
-              <CartDrawerItem key={item.id} product={item} />
-            ))
+            <>
+              {cartProducts.map((item: IProduct) => (
+                <CartDrawerItem key={item.id} product={item} />
+              ))}
+              <br />
+              <Text fontSize="lg">
+                {`Total: $${cartProducts
+                  .reduce(
+                    (acc, item) => acc + item.attributes.price * item.quantity,
+                    0
+                  )
+                  .toFixed(2)}`}
+              </Text>
+            </>
           ) : (
-            <Text fontSize={"lg"}>Your cart is empty</Text>
+            <Text fontSize="lg">Your Cart Is Empty</Text>
           )}
         </DrawerBody>
 

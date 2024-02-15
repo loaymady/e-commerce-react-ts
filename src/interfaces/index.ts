@@ -34,3 +34,9 @@ export interface IUser {
   identifier: string;
   password: string;
 }
+export interface IRegister {
+  email: string;
+  username: string;
+  password: string;
+  admin: boolean;
+}

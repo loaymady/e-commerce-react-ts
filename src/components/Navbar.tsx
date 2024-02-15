@@ -9,8 +9,6 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
-  // useDisclosure,
-  // useColorModeValue,
   Stack,
   useColorMode,
   Center,
@@ -23,6 +21,7 @@ import CookieService from "../services/CookieService";
 import { onOpenCartDrawerAction } from "../app/features/globalSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectCart } from "../app/features/cartSlice";
+import profileDefault from "../assets/profileDefault.jpg";
 
 interface Props {
   children: React.ReactNode;
@@ -51,9 +50,12 @@ export default function Navbar() {
   const jwt = CookieService.get("jwt");
   const logout = () => {
     CookieService.remove("jwt");
+    CookieService.remove("username");
+    CookieService.remove("isAdmin");
     window.location.reload();
   };
-  const username = CookieService.get("user");
+  const username = CookieService.get("username");
+  const isAdmin = CookieService.get("isAdmin");
   const dispatch = useDispatch();
   const onOpen = () => dispatch(onOpenCartDrawerAction());
   const { cartProducts } = useSelector(selectCart);
@@ -64,26 +66,22 @@ export default function Navbar() {
         borderBottom={
           colorMode === "light" ? "1px solid #ddd" : "1px solid #2d3748"
         }
-        px={4}
+        px={{ base: "0", md: "4" }}
         mb={16}
       >
         <Container maxW="7xl">
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-            <HStack spacing={8} alignItems={"center"}>
+            <HStack spacing={4} alignItems={"center"}>
               <NavLink fontWeight={"500"} fontSize={"sm"}>
                 Home
               </NavLink>
-              <HStack
-                as={"nav"}
-                spacing={4}
-                display={{ base: "none", md: "flex" }}
-              >
-                <NavLink>Dashboard</NavLink>
+              <HStack as={"nav"} spacing={4}>
+                {isAdmin ? <NavLink>Dashboard</NavLink> : ""}
               </HStack>
             </HStack>
 
             <Flex alignItems={"center"}>
-              <Stack direction={"row"} spacing={7}>
+              <Stack direction={"row"} spacing={3}>
                 <Button onClick={toggleColorMode}>
                   {colorMode === "light" ? <BsMoon /> : <BsSun />}
                 </Button>
@@ -97,40 +95,31 @@ export default function Navbar() {
                       cursor={"pointer"}
                       minW={0}
                     >
-                      <Avatar
-                        size={"sm"}
-                        src={
-                          "https://avatars.dicebear.com/api/male/username.svg"
-                        }
-                      />
+                      <Avatar size={"sm"} src={profileDefault} />
                     </MenuButton>
-                    <MenuList alignItems={"center"}>
-                      <br />
+                    <MenuList
+                      alignItems={"center"}
+                      pb={0}
+                      pos="relative"
+                      zIndex="999"
+                    >
                       <Center>
-                        <Avatar
-                          size={"2xl"}
-                          src={
-                            "https://avatars.dicebear.com/api/male/username.svg"
-                          }
-                        />
+                        <Avatar size={"xl"} src={profileDefault} />
                       </Center>
-                      <br />
                       <Center>
                         <p>{username}</p>
                       </Center>
-                      <br />
                       <MenuDivider />
-                      <MenuItem>Your Servers</MenuItem>
-                      <MenuItem>Account Settings</MenuItem>
-                      <MenuItem onClick={logout}>Logout</MenuItem>
+                      <MenuItem py={3} onClick={logout}>
+                        Logout
+                      </MenuItem>
                     </MenuList>
                   </Menu>
                 ) : (
-                  <HStack
-                    as={"nav"}
-                    spacing={4}
-                    display={{ base: "none", md: "flex" }}
-                  >
+                  <HStack as={"nav"} spacing={4}>
+                    <HStack display={{ base: "none", md: "flex" }}>
+                      <NavLink>Register</NavLink>
+                    </HStack>
                     <NavLink>Login</NavLink>
                   </HStack>
                 )}

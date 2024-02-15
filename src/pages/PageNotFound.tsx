@@ -1,24 +1,42 @@
+import { Heading, Text, Button, Center } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
-const PageNotFound = () => {
+export default function PageNotFound() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center w-screen h-screen">
-      <div className="px-4 lg:py-12">
-        <div className="lg:gap-4 lg:flex">
-          <div className="flex flex-col items-center justify-center md:py-24 lg:py-32">
-            <h1 className="font-bold text-[#149eca] text-9xl">404</h1>
-            <p className="mb-2 text-2xl font-bold text-center  md:text-3xl">
-              <span className="text-red-500">Oops!</span> <span>Page not found</span>
-            </p>
-            <p className="mb-8 text-center md:text-lg">The page you’re looking for doesn’t exist.</p>
-            <Link to={"/"} className="inline-block bg-[#149eca] p-2 hover:!text-white rounded-md" reloadDocument>
-              Go Home
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Center
+      display="flex"
+      flexDir="column"
+      textAlign="center"
+      h="100vh"
+      py={10}
+      px={6}
+    >
+      <Heading
+        display="inline-block"
+        as="h2"
+        size="4xl"
+        bgGradient="linear(to-r, teal.400, teal.600)"
+        backgroundClip="text"
+      >
+        404
+      </Heading>
+      <Text fontSize="40px" mt={3} mb={2}>
+        Page Not Found
+      </Text>
+      <Text color={"gray.500"} fontSize="28px" mb={8}>
+        The page you&apos;re looking for does not seem to exist
+      </Text>
+      <Button
+        colorScheme="teal"
+        as={Link}
+        to={"/"}
+        bgGradient="linear(to-r, teal.400, teal.500, teal.600)"
+        color="white"
+        width={"fit-content"}
+        variant="solid"
+      >
+        Go to Home
+      </Button>
+    </Center>
   );
-};
-
-export default PageNotFound;
+}

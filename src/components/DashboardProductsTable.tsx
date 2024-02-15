@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
   FormControl,
@@ -148,6 +147,7 @@ const DashboardProductsTable = () => {
       });
     }
   };
+  /**\\ --------- EDITING --------- \\*/
 
   /** --------- CREATING --------- */
   const onChangeCreateHandler = (
@@ -217,6 +217,7 @@ const DashboardProductsTable = () => {
       });
     }
   };
+  /**\\ --------- CREATING --------- \\*/
 
   if (isLoading || !isOnline) return <TableSkeleton />;
 
@@ -246,7 +247,6 @@ const DashboardProductsTable = () => {
               <Tr>
                 <Th>ID</Th>
                 <Th>Title</Th>
-                <Th>Category</Th>
                 <Th>Thumbnail</Th>
                 <Th isNumeric>Price</Th>
                 <Th isNumeric>Stock</Th>
@@ -258,11 +258,6 @@ const DashboardProductsTable = () => {
                 <Tr key={product.id}>
                   <Td>{idx + 1}</Td>
                   <Td>{product?.attributes?.title}</Td>
-                  <Td>
-                    {product?.attributes.category.data.map((category) => {
-                      return category.attributes.title;
-                    })}
-                  </Td>
                   <Td>
                     <Image
                       borderRadius="full"

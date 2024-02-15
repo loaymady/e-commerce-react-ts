@@ -15,7 +15,6 @@ import {
   FlexProps,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItem,
   MenuList,
   Link,
@@ -23,11 +22,14 @@ import {
   useColorMode,
   Image,
 } from "@chakra-ui/react";
+import { MdDashboard } from "react-icons/md";
 import { FiHome, FiMenu, FiBell, FiChevronDown } from "react-icons/fi";
 import { IconType } from "react-icons";
 import { HiOutlineViewColumns } from "react-icons/hi2";
-import { BsGrid3X3, BsMoon, BsSun } from "react-icons/bs";
+import { BsMoon, BsSun } from "react-icons/bs";
 import { Outlet, Link as RouterLink } from "react-router-dom";
+import profileDefault from "../../assets/profileDefault.jpg";
+import CookieService from "../../services/CookieService";
 
 interface LinkItemProps {
   to: string;
@@ -39,6 +41,7 @@ interface NavItemProps extends FlexProps {
   icon: IconType;
   children: React.ReactNode;
   to: string;
+  onClose: () => void;
 }
 
 interface MobileProps extends FlexProps {
@@ -51,18 +54,18 @@ interface SidebarProps extends BoxProps {
 
 const LinkItems: Array<LinkItemProps> = [
   { to: "/", name: "Home", icon: FiHome },
-  { to: "/dashboard", name: "Dashboard", icon: FiHome },
+  { to: "/dashboard", name: "Dashboard", icon: MdDashboard },
   { to: "/dashboard/products", name: "Products", icon: HiOutlineViewColumns },
-  { to: "/dashboard/categories", name: "Categories", icon: BsGrid3X3 },
 ];
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+  const { colorMode } = useColorMode();
   return (
     <Box
       transition="3s ease"
-      bg={useColorModeValue("white", "gray.900")}
-      borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.700")}
+      borderRight={
+        colorMode === "light" ? "1px solid #ddd" : "1px solid #2d3748"
+      }
       w={{ base: "full", md: 60 }}
       pos="fixed"
       h="full"
@@ -75,7 +78,12 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} to={link.to}>
+        <NavItem
+          key={link.name}
+          icon={link.icon}
+          to={link.to}
+          onClose={onClose}
+        >
           {link.name}
         </NavItem>
       ))}
@@ -83,7 +91,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   );
 };
 
-const NavItem = ({ to, icon, children, ...rest }: NavItemProps) => {
+const NavItem = ({ to, icon, children, onClose, ...rest }: NavItemProps) => {
   return (
     <Link
       as={RouterLink}
@@ -102,6 +110,7 @@ const NavItem = ({ to, icon, children, ...rest }: NavItemProps) => {
           bg: "purple.400",
           color: "white",
         }}
+        onClick={onClose}
         {...rest}
       >
         {icon && (
@@ -120,6 +129,14 @@ const NavItem = ({ to, icon, children, ...rest }: NavItemProps) => {
   );
 };
 
+const username = CookieService.get("username");
+const logout = () => {
+  CookieService.remove("jwt");
+  CookieService.remove("isAdmin");
+  CookieService.remove("username");
+  window.location.reload();
+};
+
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const { colorMode, toggleColorMode } = useColorMode();
 
@@ -129,9 +146,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue("white", "gray.900")}
-      borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
+      borderBottom={
+        colorMode === "light" ? "1px solid #ddd" : "1px solid #2d3748"
+      }
       justifyContent={{ base: "space-between", md: "flex-end" }}
       {...rest}
     >
@@ -174,10 +191,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 <Image
                   w={"32px"}
                   h={"32px"}
+                  ml={3}
                   rounded={"full"}
-                  src={
-                    "https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
-                  }
+                  src={profileDefault}
                   alt="avatar"
                 />
                 <VStack
@@ -186,7 +202,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">{username}</Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>
@@ -196,15 +212,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 </Box>
               </HStack>
             </MenuButton>
-            <MenuList
-              bg={useColorModeValue("white", "gray.900")}
-              borderColor={useColorModeValue("gray.200", "gray.700")}
-            >
-              <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
-              <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+            <MenuList borderColor={useColorModeValue("gray.200", "gray.700")}>
+              <MenuItem onClick={logout}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -217,7 +226,7 @@ const DashboardLayout = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
+    <Box minH="100vh">
       <SidebarContent
         onClose={() => onClose}
         display={{ base: "none", md: "block" }}
