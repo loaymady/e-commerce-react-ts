@@ -21,6 +21,7 @@ import {
   Textarea,
   Flex,
   useToast,
+  FormHelperText,
 } from "@chakra-ui/react";
 import { AiOutlineEye, AiOutlinePlus } from "react-icons/ai";
 import {
@@ -40,19 +41,22 @@ import CustomModal from "../shared/Modal";
 import { IntitalProduct } from "../data";
 import { useSelector } from "react-redux";
 import { selectNetwork } from "../app/features/networkSlice";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
-const DashboardProductsTable = () => {
+const DashboardProductsTable: React.FC = () => {
   const toast = useToast();
   const { isOnline } = useSelector(selectNetwork);
   const { isLoading, data } = useGetProductListQuery(1);
   //for CustomAlertDialog
   const { isOpen, onOpen, onClose } = useDisclosure();
-  //for open edit CustomModal
+  //for edit CustomModal
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
+  //for create CustomModal
   const {
     isOpen: isCreateModalOpen,
     onOpen: onCreateModalOpen,
@@ -70,154 +74,137 @@ const DashboardProductsTable = () => {
   const [createProduct, { isLoading: isCreating }] =
     useCreateDashboardProductsMutation();
 
-  /** --------- EDITING --------- */
-  const onChangeHandler = (
-    e:
-      | React.ChangeEvent<HTMLTextAreaElement>
-      | React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
+  const validationSchema = Yup.object({
+    title: Yup.string().required("Title is required"),
+    description: Yup.string().required("Description is required"),
+    price: Yup.number()
+      .required("Price is required")
+      .min(5.0, "Price must be greater than 4.99"),
+    stock: Yup.number()
+      .required("Stock is required")
+      .min(1, "Stock must be greater than 0"),
+  });
 
-    setProductToEdit({
-      ...productToEdit,
-      attributes: {
-        ...productToEdit.attributes,
-        [name]: value,
-      },
-    });
+  /** --------- EDITING --------- */
+  const openEditModal = (product: IProduct) => {
+    setClickedProductId(product.id);
+    setProductToEdit(product);
+    onModalOpen();
   };
 
-  const onChangePriceHandler = (value: string | number) =>
-    setProductToEdit({
-      ...productToEdit,
-      attributes: {
-        ...productToEdit.attributes,
-        price: +value,
-      },
-    });
-  const onChangeStockHandler = (value: string | number) =>
-    setProductToEdit({
-      ...productToEdit,
-      attributes: {
-        ...productToEdit.attributes,
-        stock: +value,
-      },
-    });
+  const formikUpdate = useFormik({
+    initialValues: {
+      title: productToEdit?.attributes?.title,
+      description: productToEdit?.attributes?.description,
+      price: productToEdit?.attributes?.price,
+      stock: productToEdit?.attributes?.stock,
+    },
+    validationSchema: validationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      const data = new FormData();
+      data.append(
+        "data",
+        JSON.stringify({
+          title: values.title,
+          description: values.description,
+          price: values.price,
+          stock: values.stock,
+        })
+      );
+
+      if (thumbnail) {
+        data.append("files.thumbnail", thumbnail, thumbnail.name);
+      } else {
+        data.append("files.thumbnail", "");
+      }
+
+      const result = await updateProduct({
+        id: clickedProductId,
+        body: data,
+      });
+
+      if ("error" in result) {
+        toast({
+          title: "Uh oh something bad happened!",
+          status: "error",
+          isClosable: true,
+          duration: 2000,
+        });
+      } else {
+        setProductToEdit(IntitalProduct);
+        onModalClose();
+        toast({
+          title: `Product Updated Successfully!`,
+          status: "info",
+          isClosable: true,
+          duration: 2000,
+        });
+      }
+    },
+  });
+  /**\\ --------- EDITING --------- \\*/
+
+  /** --------- CREATING --------- */
+  const formikCreate = useFormik({
+    initialValues: {
+      title: productToCreate?.attributes?.title,
+      description: productToCreate?.attributes?.description,
+      price: productToCreate?.attributes?.price,
+      stock: productToCreate?.attributes?.stock,
+    },
+    validationSchema: validationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      const data = new FormData();
+      data.append(
+        "data",
+        JSON.stringify({
+          title: values.title,
+          description: values.description,
+          price: values.price,
+          stock: values.stock,
+        })
+      );
+
+      if (thumbnail) {
+        data.append("files.thumbnail", thumbnail, thumbnail.name);
+      } else {
+        toast({
+          title: "Thumbnail is required!",
+          status: "error",
+          isClosable: true,
+          duration: 2000,
+        });
+        return;
+      }
+      const result = await createProduct(data);
+      if ("error" in result) {
+        toast({
+          title: "Uh oh something bad happened!",
+          status: "error",
+          isClosable: true,
+          duration: 2000,
+        });
+      } else {
+        setProductToCreate(IntitalProduct);
+        onCreateModalClose();
+        toast({
+          title: `Product Created Successfully!`,
+          status: "success",
+          isClosable: true,
+          duration: 2000,
+        });
+      }
+    },
+  });
+  /**\\ --------- CREATING --------- \\*/
 
   const onChangeThumbnailHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setThumbnail(e.target.files[0]);
     }
   };
-
-  const onSubmitHandler = async () => {
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        title: productToEdit.attributes.title,
-        description: productToEdit.attributes.description,
-        price: productToEdit.attributes.price,
-        stock: productToEdit.attributes.stock,
-      })
-    );
-    if (thumbnail) {
-      formData.append("files.thumbnail", thumbnail);
-    }
-    const result = await updateProduct({
-      id: clickedProductId,
-      body: formData,
-    });
-    if ("error" in result) {
-      toast({
-        title: "Uh oh something bad happened!",
-        status: "error",
-        isClosable: true,
-        duration: 2000,
-      });
-    } else {
-      setClickedProductId(0);
-      setProductToEdit(IntitalProduct);
-      onModalClose();
-      toast({
-        title: `Product Updated Successfully!`,
-        status: "info",
-        isClosable: true,
-        duration: 2000,
-      });
-    }
-  };
-  /**\\ --------- EDITING --------- \\*/
-
-  /** --------- CREATING --------- */
-  const onChangeCreateHandler = (
-    e:
-      | React.ChangeEvent<HTMLTextAreaElement>
-      | React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-
-    setProductToCreate({
-      ...productToCreate,
-      attributes: {
-        ...productToCreate.attributes,
-        [name]: value,
-      },
-    });
-  };
-
-  const onChangePriceCreateHandler = (value: string | number) =>
-    setProductToCreate({
-      ...productToCreate,
-      attributes: {
-        ...productToCreate.attributes,
-        price: +value,
-      },
-    });
-
-  const onChangeStockCreateHandler = (value: string | number) =>
-    setProductToCreate({
-      ...productToCreate,
-      attributes: {
-        ...productToCreate.attributes,
-        stock: +value,
-      },
-    });
-
-  const onSubmitCreateHandler = async () => {
-    const formData = new FormData();
-    formData.append(
-      "data",
-      JSON.stringify({
-        title: productToCreate.attributes.title,
-        description: productToCreate.attributes.description,
-        price: productToCreate.attributes.price,
-        stock: productToCreate.attributes.stock,
-      })
-    );
-    if (thumbnail) {
-      formData.append("files.thumbnail", thumbnail);
-    }
-    const result = await createProduct(formData);
-    if ("error" in result) {
-      toast({
-        title: "Uh oh something bad happened!",
-        status: "error",
-        isClosable: true,
-        duration: 2000,
-      });
-    } else {
-      setProductToCreate(IntitalProduct);
-      onCreateModalClose();
-      toast({
-        title: `Product Created Successfully!`,
-        status: "success",
-        isClosable: true,
-        duration: 2000,
-      });
-    }
-  };
-  /**\\ --------- CREATING --------- \\*/
 
   if (isLoading || !isOnline) return <TableSkeleton />;
 
@@ -270,7 +257,7 @@ const DashboardProductsTable = () => {
                       alt={product?.attributes?.title}
                     />
                   </Td>
-                  <Td isNumeric>${product?.attributes?.price}</Td>
+                  <Td isNumeric>${product?.attributes?.price.toFixed(2)}</Td>
                   <Td isNumeric>{product?.attributes?.stock}</Td>
                   <Td>
                     <Button
@@ -279,7 +266,6 @@ const DashboardProductsTable = () => {
                       colorScheme="purple"
                       variant="solid"
                       mr={3}
-                      onClick={() => {}}
                     >
                       <AiOutlineEye size={17} />
                     </Button>
@@ -298,9 +284,7 @@ const DashboardProductsTable = () => {
                       colorScheme="blue"
                       variant="solid"
                       onClick={() => {
-                        setClickedProductId(product.id);
-                        setProductToEdit(product);
-                        onModalOpen();
+                        openEditModal(product);
                       }}
                     >
                       <FiEdit2 size={17} />
@@ -346,40 +330,53 @@ const DashboardProductsTable = () => {
 
       <CustomModal
         isOpen={isModalOpen}
-        onClose={onModalClose}
+        onClose={() => {
+          onModalClose();
+          setProductToEdit(IntitalProduct);
+        }}
         title={"Update Product"}
         okTxt="Update"
         cancelTxt="Cancel"
-        onOkClick={onSubmitHandler}
+        onOkClick={formikUpdate.handleSubmit}
         isLoading={isUpdating}
       >
         <FormControl>
-          <FormLabel>Title</FormLabel>
+          <FormLabel htmlFor="title">Title</FormLabel>
           <Input
-            my={3}
             placeholder="Product Title"
-            name="title"
-            value={productToEdit?.attributes?.title}
-            onChange={onChangeHandler}
+            id="title"
+            {...formikUpdate.getFieldProps("title")}
           />
+          {formikUpdate.touched.title && formikUpdate.errors.title && (
+            <FormHelperText color="red.500" fontWeight="500">
+              {formikUpdate.errors.title}
+            </FormHelperText>
+          )}
         </FormControl>
 
-        <FormControl mb={3}>
-          <FormLabel>Description</FormLabel>
+        <FormControl my={3}>
+          <FormLabel htmlFor="description">Description</FormLabel>
           <Textarea
             placeholder="Product Description"
-            name="description"
-            value={productToEdit?.attributes?.description}
-            onChange={onChangeHandler}
+            id="description"
+            {...formikUpdate.getFieldProps("description")}
           />
+          {formikUpdate.touched.description &&
+            formikUpdate.errors.description && (
+              <FormHelperText color="red.500" fontWeight="500">
+                {formikUpdate.errors.description}
+              </FormHelperText>
+            )}
         </FormControl>
 
         <FormControl mb={3}>
-          <FormLabel>Price</FormLabel>
+          <FormLabel htmlFor="price">Price</FormLabel>
           <NumberInput
-            name="price"
-            defaultValue={productToEdit?.attributes?.price}
-            onChange={onChangePriceHandler}
+            id="price"
+            value={formikUpdate.values.price}
+            onChange={(valueNumber) =>
+              formikUpdate.setFieldValue("price", valueNumber)
+            }
             precision={2}
             step={0.2}
           >
@@ -389,17 +386,29 @@ const DashboardProductsTable = () => {
               <NumberDecrementStepper />
             </NumberInputStepper>
           </NumberInput>
+          {formikUpdate.touched.price && formikUpdate.errors.price && (
+            <FormHelperText color="red.500" fontWeight="500">
+              {formikUpdate.errors.price}
+            </FormHelperText>
+          )}
         </FormControl>
 
         <FormControl my={3}>
-          <FormLabel>Count in Stock</FormLabel>
+          <FormLabel htmlFor="stock">Count in Stock</FormLabel>
           <NumberInput
-            name="stock"
-            defaultValue={productToEdit?.attributes?.stock}
-            onChange={onChangeStockHandler}
+            id="stock"
+            value={formikUpdate.values.stock}
+            onChange={(valueNumber) =>
+              formikUpdate.setFieldValue("stock", valueNumber)
+            }
           >
             <NumberInputField />
           </NumberInput>
+          {formikUpdate.touched.stock && formikUpdate.errors.stock && (
+            <FormHelperText color="red.500" fontWeight="500">
+              {formikUpdate.errors.stock}
+            </FormHelperText>
+          )}
         </FormControl>
 
         <FormControl>
@@ -417,39 +426,52 @@ const DashboardProductsTable = () => {
 
       <CustomModal
         isOpen={isCreateModalOpen}
-        onClose={onCreateModalClose}
+        onClose={() => {
+          setProductToCreate(IntitalProduct);
+          onCreateModalClose();
+        }}
         title={"Create Product"}
         okTxt="Create"
-        onOkClick={onSubmitCreateHandler}
+        onOkClick={formikCreate.handleSubmit}
         isLoading={isCreating}
       >
         <FormControl>
-          <FormLabel>Title</FormLabel>
+          <FormLabel htmlFor="title">Title</FormLabel>
           <Input
-            my={3}
             placeholder="Product Title"
-            name="title"
-            value={productToCreate?.attributes?.title}
-            onChange={onChangeCreateHandler}
+            id="title"
+            {...formikCreate.getFieldProps("title")}
           />
+          {formikCreate.touched.title && formikCreate.errors.title && (
+            <FormHelperText color="red.500" fontWeight="500">
+              {formikCreate.errors.title}
+            </FormHelperText>
+          )}
         </FormControl>
 
-        <FormControl mb={3}>
-          <FormLabel>Description</FormLabel>
+        <FormControl my={3}>
+          <FormLabel htmlFor="description">Description</FormLabel>
           <Textarea
             placeholder="Product Description"
-            name="description"
-            value={productToCreate?.attributes?.description}
-            onChange={onChangeCreateHandler}
+            id="description"
+            {...formikCreate.getFieldProps("description")}
           />
+          {formikCreate.touched.description &&
+            formikCreate.errors.description && (
+              <FormHelperText color="red.500" fontWeight="500">
+                {formikCreate.errors.description}
+              </FormHelperText>
+            )}
         </FormControl>
 
         <FormControl mb={3}>
-          <FormLabel>Price</FormLabel>
+          <FormLabel htmlFor="price">Price</FormLabel>
           <NumberInput
-            name="price"
-            defaultValue={productToCreate?.attributes?.price}
-            onChange={onChangePriceCreateHandler}
+            id="price"
+            value={formikCreate.values.price}
+            onChange={(valueNumber) =>
+              formikCreate.setFieldValue("price", valueNumber)
+            }
             precision={2}
             step={0.2}
           >
@@ -459,17 +481,29 @@ const DashboardProductsTable = () => {
               <NumberDecrementStepper />
             </NumberInputStepper>
           </NumberInput>
+          {formikCreate.touched.price && formikCreate.errors.price && (
+            <FormHelperText color="red.500" fontWeight="500">
+              {formikCreate.errors.price}
+            </FormHelperText>
+          )}
         </FormControl>
 
         <FormControl my={3}>
-          <FormLabel>Count in Stock</FormLabel>
+          <FormLabel htmlFor="stock">Count in Stock</FormLabel>
           <NumberInput
-            name="stock"
-            defaultValue={productToCreate?.attributes?.stock}
-            onChange={onChangeStockCreateHandler}
+            id="stock"
+            value={formikCreate.values.stock}
+            onChange={(valueNumber) =>
+              formikCreate.setFieldValue("stock", valueNumber)
+            }
           >
             <NumberInputField />
           </NumberInput>
+          {formikCreate.touched.stock && formikCreate.errors.stock && (
+            <FormHelperText color="red.500" fontWeight="500">
+              {formikCreate.errors.stock}
+            </FormHelperText>
+          )}
         </FormControl>
 
         <FormControl>

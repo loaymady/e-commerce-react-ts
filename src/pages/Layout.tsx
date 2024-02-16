@@ -8,7 +8,7 @@ const RootLayout = () => {
     <>
       <CartDrawer />
       <Navbar />
-      <Container maxW="7xl" mb={16}>
+      <Container maxW="7xl" px="5" mb={16}>
         <Outlet />
       </Container>
     </>

@@ -4,7 +4,7 @@ export const IntitalProduct = {
   attributes: {
     title: "",
     description: "",
-    price: 0,
+    price: 0.0,
     stock: 0,
     thumbnail: {
       data: {

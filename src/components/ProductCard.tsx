@@ -48,10 +48,14 @@ const ProductCard = ({ product }: Props) => {
           <Text
             fontWeight="medium"
             color={useColorModeValue("gray.700", "gray.400")}
+            ml="2"
+            minH={{ base: "3rem", md: "auto" }}
           >
             {attributes.title}
           </Text>
-          <Text color="purple.500">${attributes.price}</Text>
+          <Text ml="2" color="purple.500">
+            ${attributes.price.toFixed(2)}
+          </Text>
         </Stack>
       </Stack>
       <Stack align="center">

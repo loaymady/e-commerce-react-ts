@@ -23,7 +23,7 @@ const ProductsPage = () => {
           No Products Found
         </Heading>
       ) : (
-        <ProductGrid>
+        <ProductGrid p="0">
           {data.data.map((product: IProduct) => (
             <ProductCard key={product.id} product={product} />
           ))}

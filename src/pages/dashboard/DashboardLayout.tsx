@@ -212,7 +212,10 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 </Box>
               </HStack>
             </MenuButton>
-            <MenuList borderColor={useColorModeValue("gray.200", "gray.700")}>
+            <MenuList
+              pb={0}
+              borderColor={useColorModeValue("gray.200", "gray.700")}
+            >
               <MenuItem onClick={logout}>Sign out</MenuItem>
             </MenuList>
           </Menu>

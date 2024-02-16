@@ -24,7 +24,7 @@ const HomePage = () => {
         alignItems="start"
         justifyContent="center"
         pr={{
-          base: 4,
+          base: 0,
           md: 8,
           lg: 10,
         }}
@@ -98,7 +98,7 @@ const HomePage = () => {
           </Button>
         </Box>
       </Flex>
-      <Flex bg="brand.400">
+      <Flex order={{ base: "-1", md: "0" }} bg="brand.400">
         <Image
           src={HomeImg}
           alt="HomeImg"
