@@ -65,8 +65,7 @@ const DashboardProductsTable: React.FC = () => {
   const [clickedProductId, setClickedProductId] = useState(0);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [productToEdit, setProductToEdit] = useState<IProduct>(IntitalProduct);
-  const [productToCreate, setProductToCreate] =
-    useState<IProduct>(IntitalProduct);
+
   const [destroyProduct, { isLoading: isDestroying }] =
     useDeleteDashboardProductsMutation();
   const [updateProduct, { isLoading: isUpdating }] =
@@ -75,7 +74,9 @@ const DashboardProductsTable: React.FC = () => {
     useCreateDashboardProductsMutation();
 
   const validationSchema = Yup.object({
-    title: Yup.string().required("Title is required"),
+    title: Yup.string()
+      .required("Title is required")
+      .max(15, "Title must be 15 characters or less"),
     description: Yup.string().required("Description is required"),
     price: Yup.number()
       .required("Price is required")
@@ -146,15 +147,23 @@ const DashboardProductsTable: React.FC = () => {
   /**\\ --------- EDITING --------- \\*/
 
   /** --------- CREATING --------- */
+
+  const onCreateModal = () => {
+    formikCreate.resetForm();
+    setThumbnail(null);
+    onCreateModalOpen();
+  };
+
   const formikCreate = useFormik({
     initialValues: {
-      title: productToCreate?.attributes?.title,
-      description: productToCreate?.attributes?.description,
-      price: productToCreate?.attributes?.price,
-      stock: productToCreate?.attributes?.stock,
+      title: "",
+      description: "",
+      price: 0.0,
+      stock: 0,
     },
     validationSchema: validationSchema,
     enableReinitialize: true,
+
     onSubmit: async (values) => {
       const data = new FormData();
       data.append(
@@ -187,8 +196,8 @@ const DashboardProductsTable: React.FC = () => {
           duration: 2000,
         });
       } else {
-        setProductToCreate(IntitalProduct);
         onCreateModalClose();
+        setThumbnail(null);
         toast({
           title: `Product Created Successfully!`,
           status: "success",
@@ -214,7 +223,7 @@ const DashboardProductsTable: React.FC = () => {
         <Button
           rightIcon={<AiOutlinePlus />}
           colorScheme="green"
-          onClick={onCreateModalOpen}
+          onClick={onCreateModal}
           ml={"auto"}
           w={"fit-content"}
         >
@@ -426,10 +435,7 @@ const DashboardProductsTable: React.FC = () => {
 
       <CustomModal
         isOpen={isCreateModalOpen}
-        onClose={() => {
-          setProductToCreate(IntitalProduct);
-          onCreateModalClose();
-        }}
+        onClose={onCreateModalClose}
         title={"Create Product"}
         okTxt="Create"
         onOkClick={formikCreate.handleSubmit}

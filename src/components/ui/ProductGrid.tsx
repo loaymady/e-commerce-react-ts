@@ -6,11 +6,17 @@ export const ProductGrid = (props: SimpleGridProps) => {
     const count = Children.toArray(props.children).filter(
       isValidElement
     ).length;
+    if (count === 1) {
+      return {
+        base: 1,
+        md: 3,
+        lg: 4,
+      };
+    }
     return {
-      base: Math.min(2, count),
-      md: Math.min(3, count),
-      lg: Math.min(4, count),
-      xl: Math.min(5, count),
+      base: 2,
+      md: 3,
+      lg: 4,
     };
   }, [props.children]);
 
